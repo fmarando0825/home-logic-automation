@@ -38,3 +38,43 @@ document.getElementById('year').textContent = new Date().getFullYear();
   slider.addEventListener('focusout', start);
   start();
 })();
+
+(() => {
+  const root = document.querySelector('.top-showcase');
+  if (!root) return;
+  const slides = [...root.querySelectorAll('.showcase-slide')];
+  const dotsWrap = root.querySelector('.showcase-dots');
+  const prev = root.querySelector('.showcase-prev');
+  const next = root.querySelector('.showcase-next');
+  let index = 0, timer;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'showcase-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', `Show solution ${i + 1}`);
+    dot.addEventListener('click', () => { show(i); restart(); });
+    dotsWrap.appendChild(dot);
+  });
+  const dots = [...dotsWrap.children];
+
+  function show(i) {
+    index = (i + slides.length) % slides.length;
+    slides.forEach((s,n) => s.classList.toggle('active', n === index));
+    dots.forEach((d,n) => d.classList.toggle('active', n === index));
+  }
+  function start() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    clearInterval(timer);
+    timer = setInterval(() => show(index + 1), 5000);
+  }
+  function restart(){ start(); }
+
+  prev.addEventListener('click', () => { show(index - 1); restart(); });
+  next.addEventListener('click', () => { show(index + 1); restart(); });
+  root.addEventListener('mouseenter', () => clearInterval(timer));
+  root.addEventListener('mouseleave', start);
+  root.addEventListener('focusin', () => clearInterval(timer));
+  root.addEventListener('focusout', start);
+  start();
+})();
